@@ -1,0 +1,1 @@
+### 5. Chương trình hiển thị đánh giá số lượng tối đa các node cảm biến có thể kết nối đến gateway.
