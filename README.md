@@ -6,6 +6,7 @@
     - URL: g4amqp.freeddns.org
     - user: g4amqp
     - password: g4amqp
+    - port: 5672
 - RabbitMQ Management: https://rabbitmq.g4amqp.freeddns.org/
     - user: g4amqp
     - password: g4amqp
