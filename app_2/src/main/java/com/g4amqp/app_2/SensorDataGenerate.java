@@ -7,43 +7,40 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 
 public class SensorDataGenerate {
-    private static final String QUEUE_NAME = null;
+    private static final String QUEUE_NAME = "sensor_data_queue";
+    private static final int NUMBER_OF_SENSORS = 10;
+    private static final int MAX_TEMPERATURE = 40;
+    private static final int MAX_HUMIDITY = 100;
 
-    /**
-     * @param args
-     * @throws IOException
-     * @throws TimeoutException
-     */
-    public static void main(String[] args) throws IOException, TimeoutException {
-
+    public static void main(String[] args) throws IOException, InterruptedException, TimeoutException {
+        
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("g4amqp.freeddns.org");
         factory.setUsername("g4amqp");
         factory.setPassword("g4amqp");
         factory.setPort(5672);
 
-        try  (Connection connection = factory.newConnection()){
-            Channel channel = connection.createChannel();
-            
-            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        
+        Random random = new Random();
+        Sensor[] sensors = new Sensor[NUMBER_OF_SENSORS];
+        
+        for (int i = 0; i < NUMBER_OF_SENSORS; i++) {
+            sensors[i] = new Sensor(i + 1, "Sensor " + (i + 1));
+        }
 
-            
-            Random random = new Random();
-    
-            while (true) {
-                double temperature = 20 + random.nextDouble() * 10;
-                double humidity = 50 + random.nextDouble() * 20;
-    
-                String message = String.format("%.2f,%.2f", temperature, humidity);
+        while (true) {
+            for (Sensor sensor : sensors) {
+                int temperature = random.nextInt(MAX_TEMPERATURE);
+                int humidity = random.nextInt(MAX_HUMIDITY);
+                String message = sensor.getId() + "," + sensor.getName() + "," + temperature + "," + humidity;
                 channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-                System.out.println("Sent message: " + message);
-    
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                System.out.println("Sent data: " + message);
             }
+            Thread.sleep(1000);
         }
     }
 }   
