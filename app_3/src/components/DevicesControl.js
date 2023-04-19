@@ -9,9 +9,10 @@ import {
 } from "@mui/material";
 import Switch from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
-import React from "react";
+import React, { useRef } from "react";
 import { useEffect } from "react";
 import { led } from "../controller/action";
+import * as API from "../api/socketApi";
 
 const Android12Switch = styled(Switch)(({ theme }) => ({
   padding: 8,
@@ -57,9 +58,13 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function DevicesControl() {
   const [led26Status, setLed26Status] = React.useState(false);
 
+  const [led26FromSensor, setLed26FromSensor] = React.useState();
+
   const [led27Status, setLed27Status] = React.useState(false);
 
   const [videoStreamActive, setVideoStreamActive] = React.useState(false);
+
+  const led26Ref = useRef();
 
   const [cameraButtonName, setCameraButtonName] =
     React.useState("Start Camera");
@@ -71,6 +76,17 @@ export default function DevicesControl() {
       setCameraButtonName("Start Camera");
     }
   }, [cameraButtonName, videoStreamActive]);
+
+  useEffect(() => {
+    API.subscribe_status((result) => {
+      setLed26FromSensor(result.status);
+      console.log(result.status);
+    });
+  }, []);
+
+  useEffect(() => {
+    setLed26Status(led26FromSensor);
+  }, [led26FromSensor]);
 
   return (
     <div style={{ width: "100%", margin: "0 auto" }}>
@@ -101,6 +117,7 @@ export default function DevicesControl() {
           <Grid item xs={6} md={6}>
             <Item>
               <FormControlLabel
+                ref={led26Ref}
                 control={<Android12Switch />}
                 checked={led26Status}
                 onChange={() => led(26, led26Status, setLed26Status)}
