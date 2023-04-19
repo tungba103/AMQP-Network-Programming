@@ -16,8 +16,28 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 var cors = require("cors");
 var calcSocket = socketIO.of("/consumer");
+var statusSocket = socketIO.of("/consumer_status");
 
 app.use(cors());
+
+rabbitMQHandler(async (connection) => {
+  try {
+    const channel = await connection.createChannel();
+    await channel.assertQueue("led_26_from_sensor");
+    channel.consume("led_26_from_sensor", (message) => {
+      const input = JSON.parse(message.content.toString());
+      const result = {
+        status: input.status,
+      };
+      console.log(result);
+      statusSocket.emit("consumer_status", JSON.stringify(result));
+
+      channel.ack(message);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+});
 rabbitMQHandler(async (connection) => {
   try {
     const channel = await connection.createChannel();
@@ -30,8 +50,22 @@ rabbitMQHandler(async (connection) => {
       };
       console.log(result);
       calcSocket.emit("consumer", JSON.stringify(result));
+
       channel.ack(message);
     });
+
+    // const channel_status = await connection.createChannel();
+    // await channel_status.assertQueue("led_26_from_sensor");
+    // channel.consume("led_26_from_sensor", (message) => {
+    //   const input = JSON.parse(message.content.toString());
+    //   const result = {
+    //     status: input.status,
+    //   };
+    //   console.log(result);
+    //   statusSocket.emit("consumer_status", JSON.stringify(result));
+
+    //   channel.ack(message);
+    // });
   } catch (e) {
     console.log(e);
   }
