@@ -8,7 +8,6 @@ import * as React from "react";
 import TabPanel from "@mui/lab/TabPanel";
 import { Paper } from "@mui/material";
 import Information from "./components/Information";
-
 function App() {
   const [value, setValue] = React.useState("1");
 

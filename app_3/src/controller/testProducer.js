@@ -21,8 +21,6 @@ async function connect() {
     }, 2000);
   } catch (ex) {
     console.error(ex);
-    await channel.close();
-    await connection.close();
   }
 }
 

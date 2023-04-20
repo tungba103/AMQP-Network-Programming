@@ -1,184 +1,142 @@
-import { Grid, Paper, Alert, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import React, { useCallback, useEffect } from "react";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import CalendarPicker from "@mui/lab/CalendarPicker";
+import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
-// eslint-disable-next-line no-unused-vars
-import Chart from "chart.js/auto";
-
 import * as API from "../api/socketApi";
-import { es } from "date-fns/locale";
+import "chartjs-plugin-streaming";
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
-
-export default function Information() {
-  const [data, setData] = React.useState([]);
-  const [date, setDate] = React.useState(new Date());
-
-  useEffect(() => {
-    API.subscribe((result) => {
-      // console.log(result);
-
-      setData((prev) => {
-        if (prev.length > 7) {
-          return [...prev.slice(prev.length - 7, prev.length), result];
-        } else {
-          return [...prev, result];
-        }
-      });
-    });
-  }, []);
-  useEffect(() => {
-    setChartTempData({
-      labels: data.map((item) => item.time),
-      datasets: [
-        {
-          label: "Temperature",
-          data: data.map((item) => item.temperature),
-          backgroundColor: [
-            //   "rgba(75,192,192,1)",
-            "#ecf0f1",
-            //   "#50AF95",
-            //   "#f3ba2f",
-            //   "#2a71d0",
-          ],
-          borderColor: "black",
-          borderWidth: 2,
-        },
-      ],
-    });
-  }, [data]);
-
-  const [chartTempData, setChartTempData] = React.useState({
-    labels: data.map((item) => item.time),
+function RealtimeChart() {
+  const [chartData, setChartData] = useState({
     datasets: [
       {
         label: "Temperature",
-        data: data.map((item) => item.temperature),
-        backgroundColor: [
-          //   "rgba(75,192,192,1)",
-          "#ecf0f1",
-          //   "#50AF95",
-          //   "#f3ba2f",
-          //   "#2a71d0",
-        ],
-        borderColor: "black",
-        borderWidth: 2,
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
+        borderColor: "rgb(54, 162, 235)",
+        fill: false,
+        data: [],
+        tension: 0,
       },
     ],
   });
-
-  const [chartHumdData, setChartHumdData] = React.useState({
-    labels: data.map((item) => item.time),
+  const [chartData_1, setChartData_1] = useState({
     datasets: [
       {
-        label: "Humidity",
-        data: data.map((item) => item.humidity),
-        backgroundColor: [
-          //   "rgba(75,192,192,1)",
-          "#ecf0f1",
-          //   "#50AF95",
-          //   "#f3ba2f",
-          //   "#2a71d0",
-        ],
-        borderColor: "#0047AB",
-        borderWidth: 2,
+        label: "Temperature",
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
+        borderColor: "rgb(54, 162, 235)",
+        fill: false,
+        data: [],
+        cubicInterpolationMode: "monotone",
       },
     ],
   });
 
-  return (
-    <div style={{ width: "100%", margin: "0 auto", height: "100%" }}>
-      <Alert
-        style={{ marginBottom: "10px", fontWeight: "bold" }}
-        severity="info"
-      >
-        It's beta, don't expect too much!
-      </Alert>
-      <Paper
-        sx={{
-          p: 1,
-          marginBottom: "10px",
-          maxWidth: "100%",
-          flexGrow: 1,
-          backgroundColor: (theme) =>
-            theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-        }}
-      >
-        <Typography
-          sx={{ fontSize: 20, fontWeight: 1000 }}
-          color="text.first"
-          gutterBottom
-        >
-          DHT11 Sensor Data
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={12}>
-            <Item>
-              <Line data={chartTempData} />
-            </Item>
-          </Grid>
-          <Grid item xs={12} md={12}>
-            <Item>
-              <Line data={chartHumdData} />
-            </Item>
-          </Grid>
-        </Grid>
-        <Grid container spacing={2} marginTop={"5px"}>
-          <Grid item xs={6} md={6}>
-            <Item>
-              Temperature:{" "}
-              {data[data.length - 1] ? data[data.length - 1].temperature : "-"}{" "}
-              °C
-            </Item>
-          </Grid>
-          <Grid item xs={6} md={6}>
-            <Item>
-              Humidity:{" "}
-              {data[data.length - 1] ? data[data.length - 1].humidity : "-"} %
-            </Item>
-          </Grid>
-        </Grid>
-      </Paper>
+  useEffect(() => {
+    API.subscribe((result) => {
+      setChartData((prevState) => ({
+        ...prevState,
+        datasets: [
+          {
+            ...prevState.datasets[0],
+            data: [
+              ...prevState.datasets[0].data,
+              {
+                x: Date.now(),
+                y: result.temperature,
+              },
+            ],
+          },
+        ],
+      }));
+      setChartData_1((prevState) => ({
+        ...prevState,
+        datasets: [
+          {
+            ...prevState.datasets[0],
+            data: [
+              ...prevState.datasets[0].data,
+              {
+                x: Date.now(),
+                y: result.temperature,
+              },
+            ],
+          },
+        ],
+      }));
+    });
+  }, []);
 
-      <Paper
-        sx={{
-          p: 1,
-          marginBottom: "10px",
-          maxWidth: "100%",
-          flexGrow: 1,
-          backgroundColor: (theme) =>
-            theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-        }}
-      >
-        <Typography
-          sx={{ fontSize: 20, fontWeight: 1000 }}
-          color="text.first"
-          gutterBottom
-        >
-          CALENDER
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={12}>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <Item>
-                <CalendarPicker
-                  date={date}
-                  onChange={(newDate) => setDate(newDate)}
-                />
-              </Item>
-            </LocalizationProvider>
-          </Grid>
-        </Grid>
-      </Paper>
+  const options = {
+    scales: {
+      xAxes: [
+        {
+          type: "realtime",
+          realtime: {
+            delay: 5000,
+            duration: 50000,
+            refresh: 1000,
+            onRefresh: (chart) => {
+              const data = chartData.datasets[0].data;
+              chart.data.datasets.forEach((dataset) => {
+                dataset.data = data;
+              });
+            },
+          },
+        },
+      ],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+            max: 100,
+          },
+        },
+      ],
+    },
+    plugins: {
+      streaming: {
+        frameRate: 30,
+      },
+    },
+  };
+  const options_1 = {
+    scales: {
+      xAxes: [
+        {
+          type: "realtime",
+          realtime: {
+            delay: 5000,
+            duration: 50000,
+            refresh: 1000,
+            onRefresh: (chart) => {
+              const data = chartData_1.datasets[0].data;
+              chart.data.datasets.forEach((dataset) => {
+                dataset.data = data;
+              });
+            },
+          },
+        },
+      ],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+            max: 100,
+          },
+        },
+      ],
+    },
+    plugins: {
+      streaming: {
+        frameRate: 30,
+      },
+    },
+  };
+
+  return (
+    <div className="App">
+      <Line data={chartData} options={options} />
+      <Line data={chartData_1} options={options_1} />
     </div>
   );
 }
+
+export default RealtimeChart;
