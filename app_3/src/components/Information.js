@@ -4,7 +4,7 @@ import * as API from "../api/socketApi";
 import "chartjs-plugin-streaming";
 
 function RealtimeChart() {
-  const [chartData, setChartData] = useState({
+  const [chartData_1, setChartData_1] = useState({
     datasets: [
       {
         label: "Temperature",
@@ -16,7 +16,7 @@ function RealtimeChart() {
       },
     ],
   });
-  const [chartData_1, setChartData_1] = useState({
+  const [chartData_2, setChartData_2] = useState({
     datasets: [
       {
         label: "Temperature",
@@ -31,7 +31,7 @@ function RealtimeChart() {
 
   useEffect(() => {
     API.subscribe((result) => {
-      setChartData((prevState) => ({
+      setChartData_1((prevState) => ({
         ...prevState,
         datasets: [
           {
@@ -46,7 +46,7 @@ function RealtimeChart() {
           },
         ],
       }));
-      setChartData_1((prevState) => ({
+      setChartData_2((prevState) => ({
         ...prevState,
         datasets: [
           {
@@ -64,39 +64,6 @@ function RealtimeChart() {
     });
   }, []);
 
-  const options = {
-    scales: {
-      xAxes: [
-        {
-          type: "realtime",
-          realtime: {
-            delay: 5000,
-            duration: 50000,
-            refresh: 1000,
-            onRefresh: (chart) => {
-              const data = chartData.datasets[0].data;
-              chart.data.datasets.forEach((dataset) => {
-                dataset.data = data;
-              });
-            },
-          },
-        },
-      ],
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-            max: 100,
-          },
-        },
-      ],
-    },
-    plugins: {
-      streaming: {
-        frameRate: 30,
-      },
-    },
-  };
   const options_1 = {
     scales: {
       xAxes: [
@@ -130,11 +97,44 @@ function RealtimeChart() {
       },
     },
   };
+  const options_2 = {
+    scales: {
+      xAxes: [
+        {
+          type: "realtime",
+          realtime: {
+            delay: 5000,
+            duration: 50000,
+            refresh: 1000,
+            onRefresh: (chart) => {
+              const data = chartData_2.datasets[0].data;
+              chart.data.datasets.forEach((dataset) => {
+                dataset.data = data;
+              });
+            },
+          },
+        },
+      ],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+            max: 100,
+          },
+        },
+      ],
+    },
+    plugins: {
+      streaming: {
+        frameRate: 30,
+      },
+    },
+  };
 
   return (
     <div className="App">
-      <Line data={chartData} options={options} />
       <Line data={chartData_1} options={options_1} />
+      <Line data={chartData_2} options={options_2} />
     </div>
   );
 }
