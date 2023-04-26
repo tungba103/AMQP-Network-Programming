@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="8.45.1">
+<file name="/home/tungba103/Data/Code/LTM/AMQP/app_4/src/main/java/com/g4amqp/app_4/App.java">
+<error line="1" column="9" severity="error" message="Name &apos;com.g4amqp.app_4&apos; must match pattern &apos;^[a-z]+(\.[a-z][a-z0-9]*)*$&apos;." source="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck"/>
+</file>
+<file name="/home/tungba103/Data/Code/LTM/AMQP/app_4/src/test/java/com/g4amqp/app_4/AppTest.java">
+<error line="1" column="9" severity="error" message="Name &apos;com.g4amqp.app_4&apos; must match pattern &apos;^[a-z]+(\.[a-z][a-z0-9]*)*$&apos;." source="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck"/>
+</file>
+</checkstyle>

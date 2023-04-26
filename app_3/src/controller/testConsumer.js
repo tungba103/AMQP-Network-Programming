@@ -22,4 +22,4 @@ async function connect(setState) {
   }
 }
 
-export { connect };
+export default connect;

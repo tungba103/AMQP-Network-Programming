@@ -58,7 +58,7 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function DevicesControl() {
   const [led26Status, setLed26Status] = React.useState(false);
 
-  const [led26FromSensor, setLed26FromSensor] = React.useState();
+  // const [led26FromSensor, setLed26FromSensor] = React.useState();
 
   const [led27Status, setLed27Status] = React.useState(false);
 
@@ -78,15 +78,24 @@ export default function DevicesControl() {
   }, [cameraButtonName, videoStreamActive]);
 
   useEffect(() => {
-    API.subscribe_status((result) => {
-      setLed26FromSensor(result.status);
+    API.subscribe_status_led26((result) => {
+      // setLed26FromSensor(result.status);
+      setLed26Status(result.status);
       console.log(result.status);
     });
-  }, []);
+  }, [led26Status]);
 
   useEffect(() => {
-    setLed26Status(led26FromSensor);
-  }, [led26FromSensor]);
+    API.subscribe_status_led27((result) => {
+      // setLed26FromSensor(result.status);
+      setLed27Status(result.status);
+      console.log(result.status);
+    });
+  }, [led27Status]);
+
+  // useEffect(() => {
+  //   setLed26Status(led26FromSensor);
+  // }, [led26Status]);
 
   return (
     <div style={{ width: "100%", margin: "0 auto" }}>
