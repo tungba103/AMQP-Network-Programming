@@ -13,6 +13,7 @@ import React, { useRef } from "react";
 import { useEffect } from "react";
 import { led } from "../controller/action";
 import * as API from "../api/socketApi";
+import { getCurrentStatus } from "../api/getCurrentStatus";
 
 const Android12Switch = styled(Switch)(({ theme }) => ({
   padding: 8,
@@ -81,7 +82,7 @@ export default function DevicesControl() {
     API.subscribe_status_led26((result) => {
       // setLed26FromSensor(result.status);
       setLed26Status(result.status);
-      console.log(result.status);
+      console.log("led26");
     });
   }, [led26Status]);
 
@@ -89,9 +90,19 @@ export default function DevicesControl() {
     API.subscribe_status_led27((result) => {
       // setLed26FromSensor(result.status);
       setLed27Status(result.status);
-      console.log(result.status);
+      console.log("led27");
     });
   }, [led27Status]);
+
+  useEffect(() => {
+    const fetchStatusApi = async () => {
+      const res = await getCurrentStatus();
+      setLed26Status(res.data.led_26);
+      setLed27Status(res.data.led_27);
+      console.log("led2627");
+    };
+    fetchStatusApi();
+  }, []);
 
   // useEffect(() => {
   //   setLed26Status(led26FromSensor);
