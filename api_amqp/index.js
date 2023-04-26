@@ -23,14 +23,22 @@ app.use(cors());
 rabbitMQHandler(async (connection) => {
   try {
     const channel = await connection.createChannel();
-    await channel.assertQueue("led_26_from_sensor");
-    channel.consume("led_26_from_sensor", (message) => {
+    // const queue = "led_26_status";
+    const exchange = "led_26_status";
+    await channel.assertExchange(exchange, "fanout", {
+      durable: false,
+    });
+    const q = await channel.assertQueue("");
+    await channel.bindQueue(q.queue, exchange, "");
+    channel.consume(q.queue, (message) => {
       const input = JSON.parse(message.content.toString());
       const result = {
         status: input.status,
       };
       console.log(result);
-      statusSocket.emit("consumer_status", JSON.stringify(result));
+
+      statusSocket.emit("consumer_status_led26", JSON.stringify(result));
+      prevStatus = input.status;
 
       channel.ack(message);
     });
@@ -38,6 +46,34 @@ rabbitMQHandler(async (connection) => {
     console.log(e);
   }
 });
+
+rabbitMQHandler(async (connection) => {
+  try {
+    const channel = await connection.createChannel();
+    // const queue = "led_26_status";
+    const exchange = "led_27_status";
+    await channel.assertExchange(exchange, "fanout", {
+      durable: false,
+    });
+    const q = await channel.assertQueue("");
+    await channel.bindQueue(q.queue, exchange, "");
+    channel.consume(q.queue, (message) => {
+      const input = JSON.parse(message.content.toString());
+      const result = {
+        status: input.status,
+      };
+      console.log(result);
+
+      statusSocket.emit("consumer_status_led27", JSON.stringify(result));
+      prevStatus = input.status;
+
+      channel.ack(message);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+});
+
 rabbitMQHandler(async (connection) => {
   try {
     const channel = await connection.createChannel();
@@ -49,23 +85,10 @@ rabbitMQHandler(async (connection) => {
         temperature: input.temperature,
       };
       console.log(result);
-      calcSocket.emit("consumer", JSON.stringify(result));
+      calcSocket.emit("consumer_temparature", JSON.stringify(result));
 
       channel.ack(message);
     });
-
-    // const channel_status = await connection.createChannel();
-    // await channel_status.assertQueue("led_26_from_sensor");
-    // channel.consume("led_26_from_sensor", (message) => {
-    //   const input = JSON.parse(message.content.toString());
-    //   const result = {
-    //     status: input.status,
-    //   };
-    //   console.log(result);
-    //   statusSocket.emit("consumer_status", JSON.stringify(result));
-
-    //   channel.ack(message);
-    // });
   } catch (e) {
     console.log(e);
   }
@@ -75,17 +98,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api", router);
 router.route("/led/:id/status").put((req, res) => {
   try {
-    const queue = req.url.split("/").slice(1).join("_");
-    console.log(queue);
+    // const queue = req.url.split("/").slice(1).join("_");
+    const exchange = req.url.split("/").slice(1).join("_");
+    console.log(exchange);
     rabbitMQHandler(async (connection) => {
       const channel = await connection.createChannel();
-      await channel.assertQueue(queue);
+      // await channel.assertQueue(queue);
+      await channel.assertExchange(exchange, "fanout", {
+        durable: false,
+      });
       const msgBuffer = Buffer.from(
         JSON.stringify({ status: req.body.status })
       );
       // console.log(req.body.status);
-      await channel.sendToQueue(queue, msgBuffer);
-      console.log("Sending message to temperature queue");
+      // await channel.sendToQueue(queue, msgBuffer);
+      await channel.publish(exchange, "", msgBuffer);
+      console.log("Sending message to led status exchange");
       // await channel.close();
       // await connection.close();
       return res.status(200).json({
