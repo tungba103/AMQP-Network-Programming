@@ -20,6 +20,9 @@ var statusSocket = socketIO.of("/consumer_status");
 
 app.use(cors());
 
+let current_status_led26 = false;
+let current_status_led27 = false;
+
 rabbitMQHandler(async (connection) => {
   try {
     const channel = await connection.createChannel();
@@ -32,6 +35,7 @@ rabbitMQHandler(async (connection) => {
     await channel.bindQueue(q.queue, exchange, "");
     channel.consume(q.queue, (message) => {
       const input = JSON.parse(message.content.toString());
+      current_status_led26 = input.status;
       const result = {
         status: input.status,
       };
@@ -59,6 +63,7 @@ rabbitMQHandler(async (connection) => {
     await channel.bindQueue(q.queue, exchange, "");
     channel.consume(q.queue, (message) => {
       const input = JSON.parse(message.content.toString());
+      current_status_led27 = input.status;
       const result = {
         status: input.status,
       };
@@ -96,6 +101,12 @@ rabbitMQHandler(async (connection) => {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api", router);
+router.route("/status").get((req, res) => {
+  return res.status(200).json({
+    led_26: current_status_led26,
+    led_27: current_status_led27,
+  });
+});
 router.route("/led/:id/status").put((req, res) => {
   try {
     // const queue = req.url.split("/").slice(1).join("_");
