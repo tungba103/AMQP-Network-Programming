@@ -5,6 +5,7 @@ import java.util.concurrent.TimeoutException;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
+// import com.google.gson.Gson;
 
 public class SensorDataGenerate {
     private static final String QUEUE_NAME = "sensor_data_queue";
@@ -27,20 +28,22 @@ public class SensorDataGenerate {
         
         Random random = new Random();
         Sensor[] sensors = new Sensor[NUMBER_OF_SENSORS];
-        
+       
         for (int i = 0; i < NUMBER_OF_SENSORS; i++) {
-            sensors[i] = new Sensor(i + 1, "Sensor " + (i + 1));
+            sensors[i] = new Sensor(i + 1, "Sensor " + (i + 1), 0, 0);
         }
 
         while (true) {
             for (Sensor sensor : sensors) {
                 int temperature = random.nextInt(MAX_TEMPERATURE);
                 int humidity = random.nextInt(MAX_HUMIDITY);
-                String message = sensor.getId() + "," + sensor.getName() + "," + temperature + "," + humidity;
+                sensor.setTemperature(temperature);
+                sensor.setHumidity(humidity);
+                String message = "{\"temperature\": " + temperature + ", \"humidity\": " + humidity + "}";
                 channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-                System.out.println("Sent data: " + message);
+                System.out.println(message);
             }
-            Thread.sleep(1000);
+            Thread.sleep(1000); 
         }
     }
 }   
