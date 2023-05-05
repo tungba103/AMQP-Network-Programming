@@ -2,3 +2,5 @@
 - Yêu cầu: Code C++/Java.
 - Chương trình hiểu đơn giản là random ra dữ liệu cảm biến: VD: Nhiệt độ, độ ẩm, ...
 - Chương trình kết nối với server AMQP(RabbitMQ) và gửi dữ liệu đó lên server.
+
+- Viết chương trình random dữ liệu cảm biến (nhiệt độ,độ ẩm) và gửi dữ liệu lên RabbitMQ 

@@ -6,7 +6,7 @@ package com.g4amqp.app_2;
 public final class App {
     private App() {
     }
-
+    
     /**
      * Says hello to the world.
      * @param args The arguments of the program.
@@ -15,3 +15,4 @@ public final class App {
         System.out.println("Hello World!");
     }
 }
+
