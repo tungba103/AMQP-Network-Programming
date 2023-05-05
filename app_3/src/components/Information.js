@@ -1,69 +1,12 @@
 import { Grid, Paper, Alert, Typography } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Line } from "react-chartjs-2";
 import * as API from "../api/socketApi";
 import "chartjs-plugin-streaming";
+import ChartContext from "../context/ChartContext";
 
 function RealtimeChart() {
-  const [chartData_1, setChartData_1] = useState({
-    datasets: [
-      {
-        label: "Temperature",
-        backgroundColor: "rgba(54, 162, 235, 0.5)",
-        borderColor: "rgb(54, 162, 235)",
-        fill: false,
-        data: [],
-        tension: 0,
-      },
-    ],
-  });
-  const [chartData_2, setChartData_2] = useState({
-    datasets: [
-      {
-        label: "Humidity",
-        backgroundColor: "rgba(250, 128, 114, 0.5)",
-        borderColor: "rgb(250, 128, 114)",
-        fill: false,
-        data: [],
-        cubicInterpolationMode: "monotone",
-      },
-    ],
-  });
-
-  useEffect(() => {
-    API.subscribe((result) => {
-      setChartData_1((prevState) => ({
-        ...prevState,
-        datasets: [
-          {
-            ...prevState.datasets[0],
-            data: [
-              ...prevState.datasets[0].data,
-              {
-                x: Date.now(),
-                y: result.temperature,
-              },
-            ],
-          },
-        ],
-      }));
-      setChartData_2((prevState) => ({
-        ...prevState,
-        datasets: [
-          {
-            ...prevState.datasets[0],
-            data: [
-              ...prevState.datasets[0].data,
-              {
-                x: Date.now(),
-                y: result.temperature,
-              },
-            ],
-          },
-        ],
-      }));
-    });
-  }, []);
+  const [chartData_1, chartData_2] = useContext(ChartContext);
 
   const options_1 = {
     scales: {
