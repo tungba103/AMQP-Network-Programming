@@ -6,6 +6,8 @@ import java.util.concurrent.TimeoutException;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
+import java.time.LocalTime;
+
 
 public class SensorDataGenerate {
     private static final String QUEUE_NAME = "sensor_data_queue";
