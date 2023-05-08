@@ -1,5 +1,6 @@
 package com.g4amqp.app_2;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import com.rabbitmq.client.Channel;
@@ -27,18 +28,26 @@ public class SensorDataGenerate {
         
         Random random = new Random();
         Sensor[] sensors = new Sensor[NUMBER_OF_SENSORS];
-       
+
         for (int i = 0; i < NUMBER_OF_SENSORS; i++) {
             sensors[i] = new Sensor(i + 1, "Sensor " + (i + 1), 0, 0);
         }
 
         while (true) {
             for (Sensor sensor : sensors) {
+                LocalTime now = LocalTime.now();
+                int hour = now.getHour();
+                int minute = now.getMinute();
+                int second = now.getSecond();
                 int temperature = random.nextInt(MAX_TEMPERATURE);
                 int humidity = random.nextInt(MAX_HUMIDITY);
+                
                 sensor.setTemperature(temperature);
                 sensor.setHumidity(humidity);
-                String message = "{\"temperature\": " + temperature + ", \"humidity\": " + humidity + "}";
+
+                String message = "{\"time\": " + hour + ":" + minute + ":" + second +
+                ", \"temperature\": " + temperature + 
+                ", \"humidity\": " + humidity + "}";
                 channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
                 System.out.println(message);
             }
