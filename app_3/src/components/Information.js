@@ -30,7 +30,7 @@ function RealtimeChart() {
         {
           ticks: {
             beginAtZero: true,
-            max: 100,
+            max: 50,
           },
         },
       ],

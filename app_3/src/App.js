@@ -66,7 +66,7 @@ function App() {
               ...prevState.datasets[0].data,
               {
                 x: Date.now(),
-                y: result.temperature,
+                y: result.humidity,
               },
             ],
           },

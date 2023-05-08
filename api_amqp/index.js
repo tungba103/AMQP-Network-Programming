@@ -82,14 +82,16 @@ rabbitMQHandler(async (connection) => {
 rabbitMQHandler(async (connection) => {
   try {
     const channel = await connection.createChannel();
-    await channel.assertQueue("temperature");
-    channel.consume("temperature", (message) => {
+    // await channel.assertQueue("sensor_data_queue");
+    channel.consume("sensor_data_queue", (message) => {
       const input = JSON.parse(message.content.toString());
       const result = {
         time: input.time,
         temperature: input.temperature,
+        humidity: input.humidity,
       };
       console.log(result);
+
       calcSocket.emit("consumer_temparature", JSON.stringify(result));
 
       channel.ack(message);
