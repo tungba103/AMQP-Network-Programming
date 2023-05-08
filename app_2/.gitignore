@@ -44,3 +44,9 @@ tmp/
 local.properties
 .loadpath
 .factorypath
+
+
+#
+# VsCode
+#
+.vscode/
